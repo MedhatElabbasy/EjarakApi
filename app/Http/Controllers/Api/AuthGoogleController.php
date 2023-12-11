@@ -33,7 +33,7 @@ class AuthGoogleController extends Controller
 
             if ($findUser) {
                 Auth::login($findUser,true);
-                $token = $findUser->createToken('google-auth')->plainTextToken;
+                $token = $findUser->createToken('authToken')->plainTextToken;
 
                 return response()->json(['token' => $token]);
             } else {
@@ -46,7 +46,7 @@ class AuthGoogleController extends Controller
                 ]);
 
                 Auth::login($newUser,true);
-                $token = $newUser->createToken('google-auth')->plainTextToken;
+                $token = $newUser->createToken('authToken')->plainTextToken;
 
                 return response()->json(['token' => $token]);
             }

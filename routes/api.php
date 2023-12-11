@@ -23,13 +23,14 @@ use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::middleware(['auth:sanctum', EnsureFrontendRequestsAreStateful::class])->group(function () {
-    // Your authenticated routes here
-});
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('verify', [AuthController::class, 'verify']);
 Route::post('login', [AuthController::class, 'login']);
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
 
 
 
@@ -37,6 +38,7 @@ Route::post('login', [AuthController::class, 'login']);
 Route::get('auth/google', [AuthGoogleController::class, 'redirectToGoogle']);
 Route::get('auth/google/callback', [AuthGoogleController::class, 'handleGoogleCallback'])->middleware('auth:sanctum');
 
+// Route::get('auth/sms', [AuthController::class, 'sendVerificationCode']);
 
 
 
