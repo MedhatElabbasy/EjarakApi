@@ -2,12 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Twilio\Rest\Client;
+use App\Mail\VerifyEmail;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Jobs\SendVerificationAuthEmail;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -17,7 +24,8 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'phone' => 'required|string|unique:users',
-            'password' => 'required',
+            'password' => ['required', 'confirmed'],
+            'password_confirmation'=> ['required'],
         ]);
 
         if ($validator->fails()) {
@@ -36,8 +44,33 @@ class AuthController extends Controller
         // $this->sendVerificationCode($user);
         // $user->sendPhoneVerificationNotification();
 
-        return response()->json(['message' => 'User registered successfully.', 'user' => $user], 201);
+
+        if ($user) {
+            $verify2 =  DB::table('password_resets')->where([
+                ['email', $request->all()['email']]
+            ]);
+
+            if ($verify2->exists()) {
+                $verify2->delete();
+            }
+            $pin = rand(100000, 999999);
+            DB::table('password_resets')
+                ->insert(
+                    [
+                        'email' => $request->all()['email'],
+                        'token' => $pin
+                    ]
+                );
+        }
+        // SendVerificationAuthEmail::dispatch($user, $pin);
+        // Mail::to($request->email)->send(new VerifyEmail($pin));
+
+        $token = $user->createToken('authToken')->plainTextToken;
+
+
+        return response()->json(['message' => 'User registered successfully.', 'user' => $user,'token'=> $token ], 201);
     }
+
 
     //login
     public function login(Request $request)
@@ -79,50 +112,26 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Logout successful']);
     }
- //verify
-    public function verify(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'phone' => 'required|string',
-            'code' => 'required|digits:6',
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422);
-        }
 
-        $user = User::where('phone', $request->phone)->first();
 
-        if (!$user) {
-            return response()->json(['error' => 'User not found.'], 404);
-        }
 
-        if ($user->verification_code !== $request->code) {
-            return response()->json(['error' => 'Invalid verification code.'], 422);
-        }
 
-        $user->update([
-            'phone_verified_at' => now(),
-        ]);
+    // protected function sendVerificationCode(User $user)
+    // {
+    //     $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'), env('TWILIO_PHONE_NUMBER'));
 
-        return response()->json(['message' => 'Phone number verified successfully.']);
-    }
+    //     $verificationCode = mt_rand(100000, 999999);
 
-    protected function sendVerificationCode(User $user)
-    {
-        $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'), env('TWILIO_PHONE_NUMBER'));
+    //     $user->update(['verification_code' => $verificationCode]);
 
-        $verificationCode = mt_rand(100000, 999999);
-
-        $user->update(['verification_code' => $verificationCode]);
-
-        $twilio->messages->create(
-            $user->phone,
-            [
-                'from' => env('TWILIO_PHONE_NUMBER'),
-                'body' => "Your verification code is: $verificationCode",
-            ]
-        );
-    }
+    //     $twilio->messages->create(
+    //         $user->phone,
+    //         [
+    //             'from' => env('TWILIO_PHONE_NUMBER'),
+    //             'body' => "Your verification code is: $verificationCode",
+    //         ]
+    //     );
+    // }
 
 }
