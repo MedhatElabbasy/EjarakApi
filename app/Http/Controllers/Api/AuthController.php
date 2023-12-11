@@ -63,7 +63,7 @@ class AuthController extends Controller
                 );
         }
         // SendVerificationAuthEmail::dispatch($user, $pin);
-        // Mail::to($request->email)->send(new VerifyEmail($pin));
+        Mail::to($request->email)->send(new VerifyEmail($pin));
 
         $token = $user->createToken('authToken')->plainTextToken;
 
