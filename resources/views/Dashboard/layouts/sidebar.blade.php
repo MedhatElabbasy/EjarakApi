@@ -16,6 +16,22 @@
                 </ul>
 
             </li>
+
+            {{-- / Category --}}
+            <li><a class="has-arrow ai-icon" href="javascript:void()" aria-expanded="false">
+                    <i class="flaticon-025-dashboard"></i>
+                    <span class="nav-text">Category</span>
+                </a>
+                <ul aria-expanded="false">
+                    <li><a href="{{ route('admin.dashboard.category') }}">Dispaly All</a></li>
+
+                    {{-- <li><a href="guest-list.html">Guest</a></li>
+                    <li><a href="guest-detail.html">Guest Detail</a></li>
+                    <li><a href="concierge.html">Concierge</a></li>
+                    <li><a href="room-list.html">Room</a></li>
+                    <li><a href="reviews.html">Reviews</a></li> --}}
+                </ul>
+            </li>
             <li><a class="has-arrow ai-icon" href="javascript:void()" aria-expanded="false">
                     <i class="flaticon-050-info"></i>
                     <span class="nav-text">Apps</span>

@@ -21,12 +21,16 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-// Route::get('/dash', [App\Http\Controllers\HomeController::class, 'indexdashdash'])->name('indexdashdash');
 
 #admin dashboard
-Route::get('/admin/dashboard/home', function () {
-    return view('Dashboard.index');
-})->middleware('role:admin')->name('adminHome');
+
+Route::group(  ['prefix' => 'admin/dashboard','middleware' => ['auth', 'role:admin']], function () {
+
+    Route::get('/home', function () {
+        return view('Dashboard.index');
+    })->name('adminHome');
+});
+
 
 
 
@@ -36,6 +40,6 @@ Route::group(  ['prefix' => 'admin/dashboard','middleware' => ['auth', 'role:adm
     })->name('realEstate');
 
     Route::get('/category', function () {
-        return view('Dashboard.index');
+        return view('Dashboard.category.index');
     })->name('category');
 });
