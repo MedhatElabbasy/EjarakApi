@@ -15,9 +15,11 @@ class CategoryLivewire extends Component
     $media_id, $imagefile, $file_name;
     public $search='';
 
+
     public function amount()
     {
         $this->resetPage();
+        
     }
 
     public function rules()
@@ -39,6 +41,7 @@ class CategoryLivewire extends Component
         $this->name = null;
         $this->discription = null;
         $this->categoryId = null;
+        // $this->search='';
         // $this->status = null;
     }
 
@@ -55,20 +58,10 @@ class CategoryLivewire extends Component
         $category->save();
         session()->flash('message', ' Category Added Successfully');
 
-        $this->dispatchBrowserEvent('close-modal');
+        $this->dispatch('close-modal');
         $this->resetVars();
 
     }
-
-    // public function updateShowModel($id)
-    // {
-    //     $this->resetValidation();
-    //     $this->resetVars();
-    //     $this->categoryId = $id;
-    //     // $this->modalFormVisable = true;
-    //     $this->loadModel();
-    //     $this->resetPage();
-    // }
 
     public function render()
     {

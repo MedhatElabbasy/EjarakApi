@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Laravel\Sanctum\Sanctum;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\Chat\ChatController;
 use App\Http\Controllers\Api\AuthGoogleController;
 use App\Http\Controllers\Api\ResetPasswordController;
 use App\Http\Controllers\Api\ForgotPasswordController;
@@ -57,3 +58,19 @@ Route::get('auth/google', [AuthGoogleController::class, 'redirectToGoogle']);
 Route::get('auth/google/callback', [AuthGoogleController::class, 'handleGoogleCallback'])->middleware('auth:sanctum');
 
 #########     End  authantication  ########################
+
+
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    // display all chats with users
+    Route::get('/chat/get-chats',[ChatController::class, 'getChats']);
+
+    Route::post('/chat/create-chat',[ChatController::class, 'createChat']);
+
+    Route::get('/chat/get-chat-by-id/{chat}',[ChatController::class, 'getChatById']);
+
+    Route::post('/chat/send-text-message',[ChatController::class, 'sendTextMessage']);
+    
+    Route::post('/chat/search-user',[ChatController::class, 'searchUsers']);
+    Route::get('/chat/message-status/{message}',[ChatController::class, 'messageStatus']);
+});
